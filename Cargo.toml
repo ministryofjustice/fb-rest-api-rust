@@ -1,0 +1,17 @@
+[package]
+name = "fb-rest-api-rust"
+version = "0.1.0"
+authors = ["Team Mojo"]
+edition = "2018"
+
+[dependencies]
+diesel = { version = "1.4.4", features = ["postgres"] }
+dotenv = "0.15.0"
+
+[dependencies.rocket]
+version = "0.4.5"
+features = ["private-cookies"]
+
+[dependencies.rocket_contrib]
+default-features = false
+features = ["json", "diesel_postgres_pool", "serve"]
