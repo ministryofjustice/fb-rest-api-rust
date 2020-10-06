@@ -15,26 +15,27 @@ fn health() -> &'static str {
     "ok"
 }
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 struct ServiceParam {
     name: String
 }
 
 #[post("/services", format = "json", data = "<params>")]
-fn create_service(params: Json<ServiceParam>) -> JsonValue {
-    json!({ "status": "yay!" })
+fn create_service(params: Json<ServiceParam>) -> String {
+    format!("print test {:?}", params)
 }
 
-//#[get("/services/<id>")]
-//fn service(id: str) {
-//}
+
+// #[get("/services/<id>")]
+// fn service(id: str) {
+// }
 
 #[database("db")]
 struct DbConn(diesel::PgConnection);
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![health])
+        .mount("/", routes![health, create_service])
         .attach(DbConn::fairing())
         .launch();
 }
