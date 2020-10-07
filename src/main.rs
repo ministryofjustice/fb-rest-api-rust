@@ -1,41 +1,38 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-//pub mod schema;
-//pub mod models;
-
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
+#[macro_use] extern crate diesel;
 
-//use crate::models::Service;
-use serde::{Serialize, Deserialize};
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::json::{Json};
+
+mod db;
+mod schema;
+mod models;
+
+use models::Service;
 
 #[get("/health")]
 fn health() -> &'static str {
     "ok"
 }
 
-#[derive(Debug, Deserialize)]
-struct ServiceParam {
-    name: String
+#[post("/services", format = "json", data = "<service>")]
+fn create_service(service: Json<Service>, connection: db::Connection) -> Json<Service> {
+    Json(Service::create(service.into_inner(), &connection))
 }
 
-#[post("/services", format = "json", data = "<params>")]
-fn create_service(params: Json<ServiceParam>) -> String {
-    format!("print test {:?}", params)
+#[get("/services/<id>")]
+fn find_service(id: i32, connection: db::Connection) -> Json<Service> {
+    Json(Service::find_by_id(id, &connection))
 }
-
-
-// #[get("/services/<id>")]
-// fn service(id: str) {
-// }
 
 #[database("db")]
 struct DbConn(diesel::PgConnection);
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![health, create_service])
-        .attach(DbConn::fairing())
+        .manage(db::connect())
+        .mount("/", routes![health, create_service, find_service])
         .launch();
 }

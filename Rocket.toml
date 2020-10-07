@@ -1,2 +1,2 @@
 [global.databases]
-db = { url = "postgres://postgres:postgres@localhost/fb-rest-api-rust" }
+db = { url = "postgres://postgres:@localhost/fb-rest-api-rust" }
